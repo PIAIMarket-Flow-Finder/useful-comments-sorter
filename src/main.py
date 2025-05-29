@@ -27,10 +27,10 @@ settings = get_settings()
 
 class MyService(Service):
     """
-    Service that processes a JSON file containing either a list of strings or a list of objects with
-    a content field, generates embeddings using sentence-transformers, and returns a JSON with 
-    embeddings appended.
+    Service that receives a list of comments with embedded vectors, filters the comments predicted 
+    as useful (label = 1) by a pre-trained XGBoost model, and returns only those comments in JSON format.
     """
+
     
 
     # Any additional fields must be excluded for Pydantic to work
@@ -40,8 +40,8 @@ class MyService(Service):
     def __init__(self):
         super().__init__(
             # TODO: 3. CHANGE THE SERVICE NAME AND SLUG
-            name="list-embedding-generator",
-            slug="list-embedding-generator",
+            name="useful-comments-sorter",
+            slug="useful-comments-sorter",
             url=settings.service_url,
             summary=api_summary,
             description=api_description,
@@ -135,32 +135,27 @@ async def lifespan(app: FastAPI):
 
 # TODO: 6. CHANGE THE API DESCRIPTION AND SUMMARY
 api_description = """
-This API allows scraping of public user reviews for any Android application
-available on the Google Play Store.
+This API receives a list of comments with precomputed vector embeddings and returns only those 
+predicted as useful by a trained XGBoost model.
 
 ### Input (application/json):
 
-- `package_name` (str, required): The app package name, e.g. `com.facebook.katana`
-- `language` (str, required): Language of the reviews, e.g. `en`
-- `country` (str, required): Country code, e.g. `us`
-- `max_reviews` (int, optional): Maximum number of reviews to retrieve
-- `start_date` / `end_date` (datetime, optional): Date filter range
+- `comments` (list of objects, required): Each object must contain:
+  - `vector` (list of float): Precomputed embedding of the comment
+  - Any additional metadata (e.g. `content`, `at`, etc.)
 
 ### Output (application/json):
 
-Returns a list of comments with:
-- `at`: Date of review
-- `score`: Rating (1–5)
-- `content`: Review text
-- `reviewCreatedVersion`: (optional) App version
+Returns a filtered list:
+- `comments`: Subset of input comments for which the model predicted usefulness (label = 1)
 """
-api_summary = "Scrape user comments from the Google Play Store"
+api_summary = "Filter useful user comments using a pre-trained XGBoost model"
 
 # Define the FastAPI application with information
 # TODO: 7. CHANGE THE API TITLE, VERSION, CONTACT AND LICENSE
 app = FastAPI(
     lifespan=lifespan,
-    title="Google Play Store Scraper API",
+    title="Usefull Comments Sorter",
     description=api_description,
     version="0.0.1",
     contact={
