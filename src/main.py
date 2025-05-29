@@ -19,7 +19,7 @@ from common_code.common.models import FieldDescription, ExecutionUnitTag
 from contextlib import asynccontextmanager
 
 # Imports required by the service's model
-from app.logic.generate_embeddings import generate_embeddings
+from app.logic.sort_useful_comments import sort_useful_comments
 import json
 
 settings = get_settings()
@@ -73,11 +73,11 @@ class MyService(Service):
 
         raw = data["input"].data
 
-        comments_with_embeddings = generate_embeddings(**json.loads(raw))
+        sorted_comments = sort_useful_comments(**json.loads(raw))
 
         return {
             "result": TaskData(
-                data=comments_with_embeddings.model_dump_json(),
+                data=sorted_comments.model_dump_json(),
                 type=FieldDescriptionType.APPLICATION_JSON,
             )
         }
