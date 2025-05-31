@@ -27,11 +27,9 @@ settings = get_settings()
 
 class MyService(Service):
     """
-    Service that receives a list of comments with embedded vectors, filters the comments predicted 
+    Service that receives a list of comments with embedded vectors, filters the comments predicted
     as useful (label = 1) by a pre-trained XGBoost model, and returns only those comments in JSON format.
     """
-
-    
 
     # Any additional fields must be excluded for Pydantic to work
     _model: object
@@ -135,7 +133,7 @@ async def lifespan(app: FastAPI):
 
 # TODO: 6. CHANGE THE API DESCRIPTION AND SUMMARY
 api_description = """
-This API receives a list of comments with precomputed vector embeddings and returns only those 
+This API receives a list of comments with precomputed vector embeddings and returns only those
 predicted as useful by a trained XGBoost model.
 
 ### Input (application/json):
